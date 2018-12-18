@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Black.NoTitleBar">
+    </style>
+
+    <style name="AppsListFastScrollTheme" parent="AppTheme">
+        <item name="android:fastScrollOverlayPosition">atThumb</item>
+        <item name="android:fastScrollTextColor">@color/android:white</item>
+    </style>
+</resources>

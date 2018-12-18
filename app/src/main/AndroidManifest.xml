@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="nl.mtieltjes.launcher">
+
+    <application
+        android:clearTaskOnLaunch="true"
+        android:excludeFromRecents="true"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:label="Launcher"
+        android:stateNotNeeded="true"
+        android:theme="@android:style/Theme.Black.NoTitleBar">
+
+        <activity
+            android:name="nl.mtieltjes.launcher.HomeScreen"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
