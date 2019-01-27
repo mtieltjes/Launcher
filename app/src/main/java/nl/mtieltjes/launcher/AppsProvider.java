@@ -7,11 +7,15 @@ import android.content.pm.ResolveInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.mtieltjes.launcher.entries.AppEntry;
+import nl.mtieltjes.launcher.entries.ListItem;
+import nl.mtieltjes.launcher.entries.URLEntry;
+
 public class AppsProvider {
 
     private final List<String> packagesToExclude;
     private final PackageManager packageManager;
-    private final List<AppEntry> apps;
+    private final List<ListItem> apps;
     private OnAppsUpdatedListener appsUpdatedListener;
 
     /**
@@ -36,9 +40,6 @@ public class AppsProvider {
                 new Intent(Intent.ACTION_MAIN, null).addCategory(Intent.CATEGORY_LAUNCHER), 0);
 
 
-        // Sort the applications by alphabetical order and add them to the list
-        packages.sort(new ResolveInfo.DisplayNameComparator(packageManager));
-
         // Recalculate the apps list
         apps.clear();
         for (final ResolveInfo resolver : packages) {
@@ -50,6 +51,11 @@ public class AppsProvider {
             final String appName = resolver.loadLabel(packageManager).toString();
             apps.add(new AppEntry(appName, packageName));
         }
+        apps.add(new URLEntry("Home Assistant", "http://192.168.2.201:8123"));
+        apps.add(new URLEntry("Nu.nl", "https://nu.nl"));
+        apps.add(new URLEntry("Tweakers.net", "https://tweakers.net"));
+
+        apps.sort(new ListItemComparator());
 
         // Let the listener know of the changes
         notifyListener();
@@ -77,7 +83,9 @@ public class AppsProvider {
      * Update the listener with the current apps list
      */
     private void notifyListener() {
-        appsUpdatedListener.onAppsUpdated(apps);
+        if (appsUpdatedListener != null) {
+            appsUpdatedListener.onAppsUpdated(apps);
+        }
     }
 
     /**
@@ -90,6 +98,6 @@ public class AppsProvider {
          *
          * @param apps List of apps that can be launched
          */
-        void onAppsUpdated(final List<AppEntry> apps);
+        void onAppsUpdated(final List<ListItem> apps);
     }
 }

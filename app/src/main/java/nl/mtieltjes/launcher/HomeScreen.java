@@ -16,18 +16,25 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.mtieltjes.launcher.entries.AppEntry;
+import nl.mtieltjes.launcher.entries.ListItem;
+import nl.mtieltjes.launcher.launching.LaunchResolver;
+
 public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedListener {
 
-    private ArrayAdapter<AppEntry> adapter;
+    private ArrayAdapter<ListItem> adapter;
     private ListView listView;
     private QuickScrollBar quickScrollBar;
 
     private AppsProvider appsProvider;
+    private LaunchResolver launchResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
+
+        launchResolver = new LaunchResolver(this);
 
         appsProvider = new AppsProvider(getPackageManager(), new ArrayList<String>() {{
             add(getPackageName());
@@ -38,24 +45,24 @@ public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedLi
         listView = findViewById(R.id.listView);
         listView.setSelector(R.drawable.list_item_selector);
 
-        adapter = new ArrayAdapter<AppEntry>(this, R.layout.list_item, new ArrayList<>()) {
+        adapter = new ArrayAdapter<ListItem>(this, R.layout.list_item, new ArrayList<>()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 final TextView view = (TextView) (convertView != null ? convertView :
                         getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null));
 
-                final AppEntry appEntry = getItem(position);
-                if (appEntry != null) {
-                    view.setText(appEntry.label);
+                final ListItem item = getItem(position);
+                if (item != null) {
+                    view.setText(item.getLabel());
                 }
 
                 return view;
             }
         };
 
-        listView.setOnItemClickListener((parent, view, position, id) -> launchApp(adapter.getItem(position)));
+        listView.setOnItemClickListener((parent, view, position, id) -> launchResolver.launch(adapter.getItem(position)));
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            launchAppSettings(adapter.getItem(position));
+            launchResolver.launchSettings(adapter.getItem(position));
             return false;
         });
         listView.setAdapter(adapter);
@@ -82,6 +89,12 @@ public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedLi
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        appsProvider.reloadApps();
+    }
+
+    @Override
     protected void onDestroy() {
         appsProvider.removeListener();
         super.onDestroy();
@@ -98,7 +111,6 @@ public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedLi
         try {
             final Intent intent = getPackageManager().getLaunchIntentForPackage(app.packageName);
             if (intent != null) {
-                intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
             }
         } catch (Exception e) {
@@ -125,7 +137,7 @@ public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedLi
     }
 
     @Override
-    public void onAppsUpdated(List<AppEntry> apps) {
+    public void onAppsUpdated(List<ListItem> apps) {
         adapter.clear();
         adapter.addAll(apps);
         quickScrollBar.setMax(apps.size() - 1);
