@@ -36,9 +36,8 @@ public class HomeScreen extends Activity implements AppsProvider.OnAppsUpdatedLi
 
         launchResolver = new LaunchResolver(this);
 
-        appsProvider = new AppsProvider(getPackageManager(), new ArrayList<String>() {{
-            add(getPackageName());
-        }});
+        appsProvider = new AppsProvider(getPackageManager(), new ShortcutProvider(this),
+                new ArrayList<String>() {{ add(getPackageName()); }});
         appsProvider.reloadApps();
 
         // Create UI elements

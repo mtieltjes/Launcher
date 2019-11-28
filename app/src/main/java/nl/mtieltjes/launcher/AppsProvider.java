@@ -15,6 +15,7 @@ public class AppsProvider {
 
     private final List<String> packagesToExclude;
     private final PackageManager packageManager;
+    private final ShortcutProvider shortcutProvider;
     private final List<ListItem> apps;
     private OnAppsUpdatedListener appsUpdatedListener;
 
@@ -24,7 +25,9 @@ public class AppsProvider {
      * @param packageManager    {@link PackageManager} to get the installed apps from
      * @param packagesToExclude List of packages that should be excluded from the reported apps list
      */
-    AppsProvider(final PackageManager packageManager, final List<String> packagesToExclude) {
+    AppsProvider(final PackageManager packageManager, final ShortcutProvider shortcutProvider,
+                 final List<String> packagesToExclude) {
+        this.shortcutProvider = shortcutProvider;
         this.packageManager = packageManager;
         this.packagesToExclude = packagesToExclude;
         apps = new ArrayList<>();
@@ -45,15 +48,16 @@ public class AppsProvider {
         for (final ResolveInfo resolver : packages) {
             // Exclude self
             final String packageName = resolver.activityInfo.packageName;
-            if (packagesToExclude.contains(packageName))
-                continue;
+//            if (packagesToExclude.contains(packageName))
+//                continue;
 
             final String appName = resolver.loadLabel(packageManager).toString();
             apps.add(new AppEntry(appName, packageName));
+            apps.addAll(shortcutProvider.getPinnedShortcutForPackage(packageName));
         }
-        apps.add(new URLEntry("Home Assistant", "http://192.168.2.201:8123"));
-        apps.add(new URLEntry("Nu.nl", "https://nu.nl"));
-        apps.add(new URLEntry("Tweakers.net", "https://tweakers.net"));
+        //apps.add(new URLEntry("Home Assistant", "http://192.168.2.201:8123"));
+        //apps.add(new URLEntry("Nu.nl", "https://nu.nl"));
+        //apps.add(new URLEntry("Tweakers.net", "https://tweakers.net"));
 
         apps.sort(new ListItemComparator());
 

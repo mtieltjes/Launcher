@@ -8,6 +8,7 @@ public class LaunchResolver {
     public LaunchResolver(Context context) {
         registry = new LaunchRegistry();
         registry.addLauncher(new PackageLauncher(context));
+        registry.addLauncher(new ShortcutLauncher(context));
         registry.addLauncher(new URLLauncher(context));
     }
 
